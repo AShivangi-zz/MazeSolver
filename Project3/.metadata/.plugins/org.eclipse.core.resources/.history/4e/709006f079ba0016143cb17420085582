@@ -1,0 +1,83 @@
+package agarwalNguyen.cs146.project3;
+
+package agarwalNguyen.cs146.project3;
+
+
+import java.util.Stack;
+
+
+public class Vertex {
+	public char lab;
+	public boolean north, south, west, east;
+	int x, y;
+	
+	public Vertex(int x, int y)
+	{
+		lab = ' ';//value is initially a space
+		this.x = x;
+		this.y = y;
+		north = true;
+		south = true;
+		west = true;
+		east = true;
+	}
+	
+	public void value(char val){//woth this method we can print 1,2,3... or ### while solving
+		lab = val;
+	}
+	
+	public int walls()
+	{
+		int wallCount = 0;
+		if(north)
+		{
+			wallCount++;
+		}
+		if(south)
+		{
+			wallCount++;
+		}
+		if(west)
+		{
+			wallCount++;
+		}
+		if(east)
+		{
+			wallCount++;
+		}
+		return wallCount;
+	}
+	
+	public void removeNorth()
+	{
+		north = false;
+	}
+	
+	public void removeSouth()
+	{
+		south = false;
+	}
+	
+	public void removeWest()
+	{
+		west = false;
+	}
+	
+	public void removeEast()
+	{
+		east = false;
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+

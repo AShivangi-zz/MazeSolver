@@ -1,0 +1,72 @@
+package agarwalNguyen.cs146.project3;
+//
+//public class Vertex {
+//	public char label; // label (e.g. ‘A’)
+//	public boolean wasVisited;
+//
+//
+//	public Vertex(char lab) // constructor
+//	{
+//		label = lab;
+//		wasVisited = false;
+//	}
+//	
+//	public char toChar()
+//	{
+//		return label;
+//	}
+//}
+import java.util.ArrayList;
+import java.util.HashMap;
+
+
+public class Vertex {
+	public char label; // label (e.g. ‘A’)
+	public boolean wasVisited = false;
+	private HashMap<Vertex, Wall> locations = new HashMap<Vertex, Wall>();
+	private ArrayList<Vertex> neighbors = new ArrayList<Vertex>();
+	
+	
+	public Vertex(char lab) // constructor
+	{
+		label = lab;
+	}
+	
+	public char toChar()
+	{
+		return label;
+	}
+	
+	public void visited()
+	{
+		wasVisited = true;
+	}
+	
+	/*public void addWall(Vertex v, Wall w)
+	{
+		locations.put(v, w);
+	}
+	
+	public Wall getWall(Vertex v)
+	{
+		return locations.get(v);
+	}
+	
+	public void neighbor(Vertex v)
+	{
+		neighbors.add(v);
+	} */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

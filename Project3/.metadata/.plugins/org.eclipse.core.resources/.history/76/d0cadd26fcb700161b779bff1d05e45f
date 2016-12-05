@@ -1,0 +1,80 @@
+package agarwalNguyen.cs146.project3;
+//
+//public class Vertex {
+//	public char label; // label (e.g. ‘A’)
+//	public boolean wasVisited;
+//
+//
+//	public Vertex(char lab) // constructor
+//	{
+//		label = lab;
+//		wasVisited = false;
+//	}
+//	
+//	public char toChar()
+//	{
+//		return label;
+//	}
+//}
+import java.util.ArrayList;
+import java.util.HashMap;
+
+
+public class Cell {
+	public Object label; // label (e.g. ‘A’)
+	public Cell N;
+	public Cell S;
+	public Cell E;
+	public Cell W;
+	public boolean wasVisited = false;
+	//private HashMap<Vertex, Wall> locations = new HashMap<Vertex, Wall>();
+	//private ArrayList<Vertex> neighbors = new ArrayList<Vertex>();
+	// https://github.com/florilu/MazeGeneration/commit/2eddd75da4d41b5e379e6f9995e67e89bf0f7cb0
+	
+	public Cell(Object lab)//, Object north, Object south, Object east, Object west) // constructor
+	{
+		label = lab;
+		N = null;
+		S = null;
+		E = null;
+		W = null;
+	}
+	
+//	public char toChar()
+//	{
+//		return label;
+//	}
+	
+	public void visited()
+	{
+		wasVisited = true;
+	}
+	
+	/*public void addWall(Vertex v, Wall w)
+	{
+		locations.put(v, w);
+	}
+	
+	public Wall getWall(Vertex v)
+	{
+		return locations.get(v);
+	}
+	
+	public void neighbor(Vertex v)
+	{
+		neighbors.add(v);
+	} */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

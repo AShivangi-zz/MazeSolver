@@ -1,0 +1,63 @@
+package agarwalNguyen.cs146.project3;
+
+public class Vertex {
+	public boolean north, south, west, east;
+	int x, y;
+	
+	public Vertex(int x, int y)
+	{
+		this.x = x;
+		this.y = y;
+		north = true;
+		south = true;
+		west = true;
+		east = true;
+	}
+	
+	public int walls()
+	{
+		int wallCount = 0;
+		if(north)
+		{
+			wallCount++;
+		}
+		if(south)
+		{
+			wallCount++;
+		}
+		if(west)
+		{
+			wallCount++;
+		}
+		if(east)
+		{
+			wallCount++;
+		}
+		return wallCount;
+	}
+	
+	public void removeNorth()
+	{
+		north = false;
+	}
+	
+	public void removeSouth()
+	{
+		south = false;
+	}
+	
+	public void removeWest()
+	{
+		west = false;
+	}
+	
+	public void removeEast()
+	{
+		east = false;
+	}
+	
+}
+
+
+
+

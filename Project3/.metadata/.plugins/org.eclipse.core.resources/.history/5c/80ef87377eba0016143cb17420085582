@@ -1,0 +1,353 @@
+package agarwalNguyen.cs146.project3;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+import java.util.Stack;
+
+
+public class Graph {
+	private int size;
+	private Vertex[][] map;
+	private char[][] maze;
+	private int TotalCells = 0;
+	Stack<Integer> a;
+	Stack<Integer> b;
+	Stack<Integer> c;
+	Stack<Integer> d;
+
+
+	public Graph(int size) {
+		this.size = size;
+		init();
+		generate();
+	}
+
+
+	public void init() {
+		map = new Vertex[size][size];
+		for (int i = 0; i < size; i++)
+			for (int j = 0; j < size; j++)
+				map[i][j] = new Vertex(i, j);
+		TotalCells++;
+	}
+
+
+	// Generates the "perfect" maze correctly.
+	public void generate() {
+		// create a VertexStack (LIFO) to hold a list of Vertex locations
+		Stack<Vertex> VertexStack = new Stack<Vertex>();
+		a = new Stack<Integer>();
+		b = new Stack<Integer>();
+		c = new Stack<Integer>();
+		d = new Stack<Integer>();
+
+
+		// set TotalVertexs= number of Vertexs in grid
+		int total = size * size;
+		// choose the starting Vertex and call it current
+		Vertex current = map[0][0];
+		Set<Integer> visitedSet = new HashSet<>();
+		// set VisitedVertexs = 1
+		int visited = 1;
+
+
+		// setting start and end
+		map[0][0].north = false;
+		map[size - 1][size - 1].south = false;
+
+
+		// while VisitedVertexs < TotalVertexs
+		while (visited < total) {
+			Vertex[] local = new Vertex[4]; // up down left right
+
+
+			// init array
+			for (int i = 0; i < 4; i++) {
+				local[i] = new Vertex(0, 0);
+			}
+
+
+			// dealing with boundaries
+			if (current.x == 0 || !map[current.x - 1][current.y].east || map[current.x - 1][current.y].walls() < 2
+					|| VertexStack.contains(map[current.x - 1][current.y]))
+				local[2] = null; // no left neighbor
+			if (current.y == 0 || !map[current.x][current.y - 1].south || map[current.x][current.y - 1].walls() < 2
+					|| VertexStack.contains(map[current.x][current.y - 1]))
+				local[0] = null; // no up neighbor
+			if (current.x == size - 1 || !map[current.x + 1][current.y].west
+					|| map[current.x + 1][current.y].walls() < 2 || VertexStack.contains(map[current.x + 1][current.y]))
+				local[3] = null; // no right neighbor
+			if (current.y == size - 1 || !map[current.x][current.y + 1].north
+					|| map[current.x][current.y + 1].walls() < 2 || VertexStack.contains(map[current.x][current.y + 1]))
+				local[1] = null; // no down neighbor
+
+
+			// populate local Vertexs
+			int nullCounter = 0;
+			for (int i = 0; i < 4; i++) {
+				if (local[i] != null) {
+					if (i == 0 && map[current.x][current.y - 1].south)
+						local[0] = map[current.x][current.y - 1];
+					if (i == 1 && map[current.x][current.y + 1].north)
+						local[1] = map[current.x][current.y + 1];
+					if (i == 2 && map[current.x - 1][current.y].east)
+						local[2] = map[current.x - 1][current.y];
+					if (i == 3 && map[current.x + 1][current.y].west)
+						local[3] = map[current.x + 1][current.y];
+				} else
+					nullCounter++;
+			}
+
+
+			// System.out.println(visited + " Current X: " + current.x + " Y: "
+			// + current.y + " Nulls: " + nullCounter);
+
+
+			// choose neighbor s.t. one exists
+			if (nullCounter != 4) {
+				boolean chosen = false;
+				Vertex rand = new Vertex(0, 0);
+				int pos = 10;
+				while (!chosen) {
+					int choice = (int) ((Math.random() * 4));
+					if (local[choice] != null) {
+						pos = choice;
+						rand = local[choice];
+						chosen = true;
+						// System.out.println(" Random Position: " + choice + "
+						// -> " + local[choice].x + " " + local[choice].y);
+					}
+				}
+
+
+				// knocking down walls
+				if (pos == 0) {
+					map[rand.x][rand.y].removeSouth();
+					map[current.x][current.y].removeNorth();
+					a.add(current.x);
+					b.add(current.y);
+					c.add(rand.x);
+					d.add(rand.y);
+					// System.out.println(" KNOCKING DWN BETWEEN: " + current.x
+					// + " " + current.y + " AND " + +rand.x + " " + rand.y +
+					// "\n");
+				}
+				if (pos == 1) {
+					map[rand.x][rand.y].removeNorth();
+					map[current.x][current.y].removeSouth();
+					a.add(current.x);
+					b.add(current.y);
+					c.add(rand.x);
+					d.add(rand.y);
+					// System.out.println(" KNOCKING DWN BETWEEN: " + current.x
+					// + " " + current.y + " AND " + +rand.x + " " + rand.y +
+					// "\n");
+				}
+				if (pos == 2) {
+					map[rand.x][rand.y].removeEast();
+					map[current.x][current.y].removeWest();
+					a.add(current.x);
+					b.add(current.y);
+					c.add(rand.x);
+					d.add(rand.y);
+					// System.out.println(" KNOCKING DWN BETWEEN: " + current.x
+					// + " " + current.y + " AND " + +rand.x + " " + rand.y +
+					// "\n");
+				}
+				if (pos == 3) {
+					map[rand.x][rand.y].removeWest();
+					map[current.x][current.y].removeEast();
+					a.add(current.x);
+					b.add(current.y);
+					c.add(rand.x);
+					d.add(rand.y);
+					// System.out.println(" KNOCKING DWN BETWEEN: " + current.x
+					// + " " + current.y + " AND " + +rand.x + " " + rand.y +
+					// "\n");
+				}
+
+
+				// push current location onto VertexStack and rand is set to
+				// current
+				VertexStack.add(current);
+				int vispos = Integer.parseInt("" + current.x + "" + current.y);
+				visitedSet.add(vispos);
+				current = rand;
+				visited++;
+			} else {
+				// pop the most recent Vertex entry off the VertexStack
+				// make it current
+				current = VertexStack.pop();
+			}
+		}
+	}
+
+
+	public Vertex getVertex(int x, int y) {
+		return map[x][y];
+	}
+
+
+	public void makeGrid() {
+		int rows = (2 * size) + 1;
+		maze = new char[rows][rows];
+		for (int i = 0; i < rows; i = i + 2) {
+			for (int j = 1; j < rows; j = j + 2) {
+				maze[i][j] = '-';
+			}
+		}
+		for (int i = 1; i < rows; i = i + 2) {
+			for (int j = 0; j < rows; j = j + 2) {
+				maze[i][j] = '|';
+			}
+		}
+		for (int i = 0; i < rows; i = i + 2) {
+			for (int j = 0; j < rows; j = j + 2) {
+				maze[i][j] = '+';
+			}
+		}
+		for (int i = 1; i < rows; i = i + 2) {
+			int x =0;
+			for (int j = 1; j < rows; j = j + 2) {
+				int y = 0;
+				maze[i][j] = getVertex(x,y).lab;
+				x++;
+				y++;
+			}
+		}
+
+
+		// take out walls
+		while (!a.isEmpty()) {
+			int x1 = (int) a.pop();
+			int y1 = (int) b.pop();
+			int x2 = (int) c.pop();
+			int y2 = (int) d.pop();
+
+
+			int x = x1 + x2 + 1;
+			int y = y1 + y2 + 1;
+
+
+			maze[x][y] = ' ';
+			//maze[x][y] = getVertex(x1, y1).lab;
+		}
+		maze[0][1] = ' '; // making the opening
+		maze[2 * size][(2 * size) - 1] = ' '; // making the end
+	}
+
+
+	public void printMaze() {
+		for (int x = 0; x < maze.length; x++) {
+			for (int y = 0; y < maze.length; y++) {
+				System.out.print(maze[x][y]);
+			}
+			System.out.println();
+		}
+	}
+
+
+	public Stack<Vertex> getNeighborsWithWalls(Vertex vert) {// returns
+																// neighbors of
+																// the current
+																// cell
+		Stack<Vertex> v = new Stack<Vertex>();
+		/*
+		 * for (int i=0;i<map.length;i++){ for(int j=0;j<map.length;j++){
+		 * if(getVertex(i,j).south){ v.add(map[i+1][j]); }
+		 * if(getVertex(i,j).north){ v.add(map[i-1][j]); }
+		 * if(getVertex(i,j).east){ v.add(map[i][j+1]); }
+		 * if(getVertex(i,j).west){ v.add(map[i][j-1]); } } }
+		 */
+		int i = vert.x;
+		int j = vert.y;
+
+
+		if (getVertex(i, j).south) {
+			v.add(map[i][j + 1]);
+		}
+		if (getVertex(i, j).north) {
+			v.add(map[i][j - 1]);
+		}
+		if (getVertex(i, j).east) {
+			v.add(map[i + 1][j]);
+		}
+		if (getVertex(i, j).west) {
+			v.add(map[i - 1][j]);
+		}
+
+
+		return v;
+	}
+	public void bfs()
+	{
+		Queue<Vertex> q = new LinkedList<Vertex>();
+		q.add(map[0][0]);
+		while (!q.isEmpty())
+		{
+			Vertex next = q.remove();
+			next.visited = true;
+		}
+		
+	}
+	
+	public void dfs()
+	{
+		Stack<Vertex> CellStack = new Stack<Vertex>();
+		int count = 0;
+		Vertex CurrentCell = map[0][0];
+		getVertex(0,0).lab = (char) count;//starting point is 0
+		int VisitedCells = 1;
+		
+		while (VisitedCells < TotalCells)
+		{
+			Stack<Vertex> neighbors = getNeighborsWithWalls(CurrentCell);
+			Vertex CelltoPush;
+			if (!neighbors.isEmpty()) //have to check if visited
+			{
+				Vertex neighbor = neighbors.pop();
+				if (neighbor.west == CurrentCell.east) //neighbor is left
+				{
+					CurrentCell.east = false;
+					neighbor.west = false;
+					CelltoPush = map[CurrentCell.x - 1][CurrentCell.y];
+					getVertex(CurrentCell.x - 1,CurrentCell.y).lab = (char) (count +1);//count while solving
+				}
+				else if (neighbor.south == CurrentCell.north) //neighbor is north
+				{
+					CurrentCell.north = false;
+					neighbor.south = false;
+					CelltoPush = map[CurrentCell.x][CurrentCell.y - 1];
+					getVertex(CurrentCell.x,CurrentCell.y -1).lab = (char) (count +1);//count while solving
+				}
+				else if (neighbor.east == CurrentCell.west) //neighbor is right
+				{
+					CurrentCell.west = false;
+					neighbor.east = false;
+					CelltoPush = map[CurrentCell.x + 1][CurrentCell.y];
+					getVertex(CurrentCell.x + 1,CurrentCell.y).lab = (char) (count +1);//count while solving
+				}
+				else //neighbor is south
+				{
+					CurrentCell.south = false;
+					neighbor.north = false;
+					CelltoPush = map[CurrentCell.x][CurrentCell.y + 1];
+					getVertex(CurrentCell.x,CurrentCell.y+1).lab = (char) (count +1);//count while solving
+				}
+				CellStack.push(CurrentCell);
+				CurrentCell = CelltoPush;
+				count++;
+				VisitedCells++;
+			}
+			else
+			{
+				CurrentCell = CellStack.pop();
+			}
+		}
+		
+		System.out.println("DFS:");
+		
+	}
+}

@@ -1,9 +1,19 @@
 package agarwalNguyen.cs146.project3;
 
+import java.util.Scanner;
+
 public class GraphTest {
 	public static void main(String[] args)
 	{
-	Graph theGraph = new Graph();
+		Scanner in = new Scanner(System.in);
+		System.out.println("Size of maze: ");
+		int size = in.nextInt();
+		Graph grid = new Graph(size);
+		grid.makeGrid();
+		grid.printMaze();
+		grid.dfs();
+		grid.printMaze();
+	/*Graph theGraph = new Graph();
 	theGraph.addVertex('A'); // 0 (start for dfs)
 	theGraph.addVertex('B'); // 1
 	theGraph.addVertex('C'); // 2
@@ -18,7 +28,6 @@ public class GraphTest {
 	System.out.println();
 	System.out.print("Visits usinf bfs: ");
 	theGraph.bfs(); // breadth-first search
-	System.out.println();
+	System.out.println(); */
 	}
-
 }

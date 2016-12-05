@@ -1,0 +1,313 @@
+package agarwalNguyen.cs146.project3;
+
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+ 
+public class Labyrinth
+{
+    private int size;
+    private Cell[][] map;
+    private char[][] maze;
+    Stack a;
+    Stack b;
+    Stack c;
+    Stack d;
+    
+ 
+    public Labyrinth(int size)
+    {
+        this.size = size;
+        init();
+        generate();
+    }
+ 
+    public void init()
+    {
+        map = new Cell[size][size];
+        for (int i = 0; i < size; i++)
+            for (int j = 0; j < size; j++)
+                map[i][j] = new Cell(i, j);
+    }
+ 
+    //Generates the "perfect" maze correctly.
+    public void generate()
+    {
+        // create a CellStack (LIFO) to hold a list of cell locations
+        Stack<Cell> cellStack = new Stack<Cell>();
+        a = new Stack();
+        b = new Stack();
+        c = new Stack();
+        d = new Stack();
+        
+        // set TotalCells= number of cells in grid
+        int total = size * size;
+        // choose the starting cell and call it current
+        Cell current = map[0][0];
+        Set<Integer> visitedSet = new HashSet<>();
+        // set VisitedCells = 1
+        int visited = 1;
+ 
+        // setting start and end
+        map[0][0].up = false;
+        map[size - 1][size - 1].down = false;
+ 
+        // while VisitedCells < TotalCells
+        while (visited < total) {
+            Cell[] local = new Cell[4]; // up down left right
+ 
+            // init array
+            for (int i = 0; i < 4; i++) {
+                local[i] = new Cell(0, 0);
+            }
+ 
+            // dealing with boundaries
+            if (current.x == 0 || !map[current.x - 1][current.y].right || map[current.x - 1][current.y].walls() < 2
+                    || cellStack.contains(map[current.x - 1][current.y]))
+                local[2] = null; // no left neighbor
+            if (current.y == 0 || !map[current.x][current.y - 1].down || map[current.x][current.y - 1].walls() < 2
+                    || cellStack.contains(map[current.x][current.y - 1]))
+                local[0] = null; // no up neighbor
+            if (current.x == size - 1 || !map[current.x + 1][current.y].left
+                    || map[current.x + 1][current.y].walls() < 2 || cellStack.contains(map[current.x + 1][current.y]))
+                local[3] = null; // no right neighbor
+            if (current.y == size - 1 || !map[current.x][current.y + 1].up || map[current.x][current.y + 1].walls() < 2
+                    || cellStack.contains(map[current.x][current.y + 1]))
+                local[1] = null; // no down neighbor
+ 
+            // populate local cells
+            int nullCounter = 0;
+            for (int i = 0; i < 4; i++) {
+                if (local[i] != null) {
+                    if (i == 0 && map[current.x][current.y - 1].down)
+                        local[0] = map[current.x][current.y - 1];
+                    if (i == 1 && map[current.x][current.y + 1].up)
+                        local[1] = map[current.x][current.y + 1];
+                    if (i == 2 && map[current.x - 1][current.y].right)
+                        local[2] = map[current.x - 1][current.y];
+                    if (i == 3 && map[current.x + 1][current.y].left)
+                        local[3] = map[current.x + 1][current.y];
+                } else
+                    nullCounter++;
+            }
+ 
+            System.out
+                    .println(visited + " Current X: " + current.x + " Y: " + current.y + "     Nulls: " + nullCounter);
+ 
+            // choose neighbor s.t. one exists
+            if (nullCounter != 4) {
+                boolean chosen = false;
+                Cell rand = new Cell(0, 0);
+                int pos = 10;
+                while (!chosen) {
+                    int choice = (int) ((Math.random() * 4));
+                    if (local[choice] != null) {
+                        pos = choice;
+                        rand = local[choice];
+                        chosen = true;
+                        System.out.println(
+                                "  Random Position: " + choice + " -> " + local[choice].x + " " + local[choice].y);
+                    }
+                }
+ 
+                // knocking down walls
+                if (pos == 0) {
+                    map[rand.x][rand.y].rmDown();
+                    map[current.x][current.y].rmUp();
+                    a.add(current.x);
+                    b.add(current.y);
+                    c.add(rand.x);
+                    d.add(rand.y);
+                    System.out.println("  KNOCKING DWN BETWEEN: " + current.x + " " + current.y + " AND " + +rand.x
+                            + " " + rand.y + "\n");
+                }
+                if (pos == 1) {
+                    map[rand.x][rand.y].rmUp();
+                    map[current.x][current.y].rmDown();
+                    a.add(current.x);
+                    b.add(current.y);
+                    c.add(rand.x);
+                    d.add(rand.y);
+                    System.out.println("  KNOCKING DWN BETWEEN: " + current.x + " " + current.y + " AND " + +rand.x
+                            + " " + rand.y + "\n");
+                }
+                if (pos == 2) {
+                    map[rand.x][rand.y].rmRight();
+                    map[current.x][current.y].rmLeft();
+                    a.add(current.x);
+                    b.add(current.y);
+                    c.add(rand.x);
+                    d.add(rand.y);
+                    System.out.println("  KNOCKING DWN BETWEEN: " + current.x + " " + current.y + " AND " + +rand.x
+                            + " " + rand.y + "\n");
+                }
+                if (pos == 3) {
+                    map[rand.x][rand.y].rmLeft();
+                    map[current.x][current.y].rmRight();
+                    a.add(current.x);
+                    b.add(current.y);
+                    c.add(rand.x);
+                    d.add(rand.y);
+                    System.out.println("  KNOCKING DWN BETWEEN: " + current.x + " " + current.y + " AND " + +rand.x
+                            + " " + rand.y + "\n");
+                }
+ 
+                // push current location onto CellStack and rand is set to
+                // current
+                cellStack.add(current);
+                int vispos = Integer.parseInt("" + current.x + "" + current.y);
+                visitedSet.add(vispos);
+                current = rand;
+                visited++;
+            } else {
+                // pop the most recent cell entry off the CellStack
+                // make it current
+                current = cellStack.pop();
+            }
+        }
+    }
+    public Cell getCell(int x, int y)
+    {
+    	return map[x][y];
+    }
+    //draw maze
+    public void draw(){
+    	
+    }
+    
+	public void makeGrid() {
+//	n = size;
+	int rows = (2 * size) + 1;
+	maze = new char[rows][rows];
+	for (int i = 0; i < rows; i = i + 2) {
+		for (int j = 1; j < rows; j = j + 2) {
+			maze[i][j] = '-';
+		}
+	}
+	for (int i = 1; i < rows; i = i + 2) {
+		for (int j = 0; j < rows; j = j + 2) {
+			maze[i][j] = '|';
+		}
+	}
+	for (int i = 0; i < rows; i = i + 2) {
+		for (int j = 0; j < rows; j = j + 2) {
+			maze[i][j] = '+';
+		}
+	}
+	for (int i = 1; i < rows; i = i + 2)
+	{
+		for (int j = 1; j < rows; j = j + 2)
+		{
+			maze[i][j] = 'X';
+		}
+	}
+	
+	//take out walls
+	while(!a.isEmpty()){
+	int x1 = (int) a.pop();
+	int y1 = (int) b.pop();
+	int x2 = (int) c.pop();
+	int y2 = (int) d.pop();
+	
+	int x = x1+x2+1;
+	int y = y1+y2+1;
+	
+	maze[x][y] = ' ';
+	}
+	printMaze();
+	//maze[0][1] = ' '; // making the opening
+	//maze[2 * size][(2 * size) - 1] = ' '; // making the end
+}
+	public void printMaze() {
+		for (int x = 0; x < maze.length; x++) {
+			for (int y = 0; y < maze.length; y++) {
+				System.out.print(maze[x][y]);
+			}
+			System.out.println();
+		}
+	}
+    
+//    public void print()
+//    {
+//    	char[][] maze = new char [(2 * map.length) + 1][(2 * map.length) + 1];
+//    	for(int i = 0; i < maze.length; i++)
+//    	{
+//    		for(int j = 0; j < maze.length; j++)
+//    		{
+//    			map[i][j] = 
+//    		}
+//    	}
+//    }
+//    
+//    public void display() {
+//		for (int i = 0; i < size; i++) {
+//			// draw the north edge
+//			for (int j = 0; j < size; j++) {
+//				System.out.print((map[i][j] & 1) == 0 ? "+---" : "+   ");
+//			}
+//			System.out.println("+");
+//			// draw the west edge
+//			for (int j = 0; j < size; j++) {
+//				System.out.print((map[i][j] & 8) == 0 ? "|   " : "    ");
+//			}
+//			System.out.println("|");
+//		}
+//		// draw the bottom line
+//		for (int j = 0; j < size; j++) {
+//			System.out.print("+---");
+//		}
+//		System.out.println("+");
+//	}
+  
+    
+    public class Cell
+    {
+        private boolean up, down, left, right;
+        int x, y;
+ 
+        public Cell(int x, int y)
+        {
+            up = true;
+            down = true;
+            left = true;
+            right = true;
+            this.x = x;
+            this.y = y;
+        }
+ 
+        public int walls()
+        {
+            int walls = 0;
+            if (up)
+                walls++;
+            if (down)
+                walls++;
+            if (left)
+                walls++;
+            if (right)
+                walls++;
+            return walls;
+        }
+ 
+        public void rmUp()
+        {
+            up = false;
+        }
+ 
+        public void rmDown()
+        {
+            down = false;
+        }
+ 
+        public void rmLeft()
+        {
+            left = false;           
+        }
+ 
+        public void rmRight()
+        {
+            right = false;
+        }
+    }
+}

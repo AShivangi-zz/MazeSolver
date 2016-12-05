@@ -1,0 +1,21 @@
+package agarwalNguyen.cs146.project3;
+
+public class Wall 
+{
+	boolean statement;
+	
+	public Wall(boolean statement)
+	{
+		this.statement = statement;
+	}
+	
+	public void set(boolean statement)
+	{
+		this.statement = statement;
+	}
+	
+	public boolean get()
+	{
+		return statement;
+	}
+}

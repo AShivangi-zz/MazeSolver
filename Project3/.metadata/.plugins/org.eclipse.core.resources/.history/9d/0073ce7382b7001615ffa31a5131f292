@@ -1,0 +1,404 @@
+package agarwalNguyen.cs146.project3;
+
+
+import java.util.Random;
+
+
+//brainstorm
+// adjacency matrix to create graph/delete edges, how to initialize?? Make every number 1, since all walls
+// Or we can make vertices as nodes, every time we want to delete edge point one node to the neighbor
+// Create a matrix of vertices, with references to all 4 directions. 
+public class Graph {
+	private final int MAX_VERTS = 20;
+	private Vertex vertexList[]; // list of vertices
+	private int adjMat[][]; // adjacency matrix
+	private int nVerts = 0; // current number of vertices
+	private Queue theQueue;
+	private StackX theStack;
+	private Vertex[][] maze;
+	private int size;
+
+
+	public Graph() // constructor
+	{
+		vertexList = new Vertex[MAX_VERTS]; // adjacency matrix
+		adjMat = new int[MAX_VERTS][MAX_VERTS];
+		nVerts = 0;
+		for (int j = 0; j < MAX_VERTS; j++) // set adjacency
+			for (int k = 0; k < MAX_VERTS; k++) // matrix to 0
+				adjMat[j][k] = 0;
+		theQueue = new Queue(); // initialize queue
+		theStack = new StackX(); // initialize stack
+	}
+
+
+	public void makeGrid(int size) {
+		this.size = size;
+		int rows = (2 * size) + 1;
+		int col = (2 * size) + 1;
+		maze = new Vertex[rows][col];
+		 /*for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				maze[i][j] = new Vertex(' ');
+			}
+		}
+		
+		for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (i < rows - 1)
+				{
+					addWall(maze[i][j], maze[i+1][j]);
+				}
+				if (j < col - 1)
+				{
+					addWall(maze[i][j], maze[i][j+1]);
+				}
+			}
+		} */
+		for (int i = 0; i < rows; i = i + 2) {
+			for (int j = 1; j < col; j = j + 2) {
+				maze[i][j] = '-';
+			}
+		}
+		for (int i = 1; i < rows; i = i + 2) {
+			for (int j = 0; j < col; j = j + 2) {
+				maze[i][j] = '|';
+			}
+		}
+		for (int i = 0; i < rows; i = i + 2) {
+			for (int j = 0; j < col; j = j + 2) {
+				maze[i][j] = '+';
+			}
+		}
+		for (int i = 1; i < rows; i = i + 2)
+		{
+			for (int j = 1; j < col; j = j + 2)
+			{
+				maze[i][j] = cell.toChar();
+				nVerts++;
+			}
+		}
+		//maze[0][1] = ' '; // making the opening
+		//maze[2 * size][(2 * size) - 1] = ' '; // making the end
+		printMaze();
+	}
+
+
+	/*public void addWall(Vertex v1, Vertex v2)
+	{
+		Wall wall = new Wall(true);
+		v1.addWall(v2, wall);
+		v2.addWall(v1, wall);
+		v1.neighbor(v2);
+		v2.neighbor(v1);
+	} */
+	
+	public void makeMaze() //call dfs and bfs in this
+	{
+		// to do
+		
+	}
+
+
+	public void printMaze() {
+		for (int x = 0; x < maze.length; x++) {
+			for (int y = 0; y < maze.length; y++) {
+				System.out.print(maze[x][y]);
+			}
+			System.out.println();
+		}
+	}
+	
+	/*public void printMaze()
+	{
+		for (int x = 0; x < size - 1; x++)
+		{
+			for (int y = 0; y < size; y++)
+			{
+				if (maze[x][y].getWall(maze[x+1][y]).get() == true)
+				{
+					System.out.print("|");
+				}
+				System.out.println();
+			}
+		}
+		for (int x = 0; x < size - 1; x++)
+		{
+			for (int y = 0; y < size; y++)
+			{
+				if (maze[y][x].getWall(maze[y][x+1]).get() == true)
+				{
+					System.out.print("-");
+				}
+				System.out.println();
+			}
+		}
+		
+	} */
+
+
+	public void addVertex(char lab) {
+		vertexList[nVerts++] = new Vertex(lab);
+	}
+	
+	public void removeEdge (int start, int end)
+	{
+		if (start >= 0 && start < nVerts && end > 0 && end < nVerts)
+		{
+			adjMat[start][end] = 0;
+			adjMat[end][start] = 0;
+		}
+	}
+	
+	
+	public void addEdge(int start, int end) {
+		if (start >= 0 && start < nVerts && end > 0 && end < nVerts)
+		adjMat[start][end] = 1;
+		adjMat[end][start] = 1;
+	}
+	
+	public void printMatrix(int[][] matrix)
+	{
+		for (int i = 0; i < matrix.length; i++)
+		{
+			for (int j = 0; j < matrix.length; j++)
+			{
+				System.out.print(matrix[i][j] + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+	
+	public void displayVertex(int v) {
+		System.out.print(vertexList[v].label);
+	}
+
+
+	public void bfs() // breadth-first search
+	{ // begin at vertex 0
+		vertexList[0].wasVisited = true; // mark it
+		displayVertex(0); // display it
+		theQueue.insert(0); // insert at tail
+		int v2;
+		while (!theQueue.isEmpty()) // until queue empty,
+		{
+			int v1 = theQueue.remove(); // remove vertex at head
+			// until it has no unvisited neighbors
+			while ((v2 = getAdjUnvisitedVertex(v1)) != -1) { // get one,
+				vertexList[v2].wasVisited = true; // mark it
+				displayVertex(v2); // display it
+				theQueue.insert(v2); // insert it
+			} // end while
+		} // end while(queue not empty)
+			// queue is empty, so we’re done
+		for (int j = 0; j < nVerts; j++) // reset flags
+			vertexList[j].wasVisited = false;
+	} // end bfs()
+		// returns an unvisited vertex adj to v
+
+
+	public void dfs() // depth-first search
+	{ // begin at vertex 0
+		vertexList[0].wasVisited = true; // mark it
+		displayVertex(0); // display it
+		theStack.push(0); // push it
+		while (!theStack.isEmpty()) // until stack empty,
+		{
+			// get an unvisited vertex adjacent to stack top
+			int v = getAdjUnvisitedVertex(theStack.peek());
+			if (v == -1) // if no such vertex,
+				theStack.pop();
+			else // if it exists,
+			{
+				vertexList[v].wasVisited = true; // mark it
+				displayVertex(v); // display it
+				theStack.push(v); // push it
+			}
+		} // end while
+			// stack is empty, so we’re done
+		for (int j = 0; j < nVerts; j++) // reset flags
+			vertexList[j].wasVisited = false;
+	}
+	
+	public void DepthFirstSearch()
+	{
+		StackX cellStack = new StackX();
+		//Random rand = new Random();
+		int TotalCells = nVerts;
+		//int x = rand.nextInt(size);
+		//int y = rand.nextInt(size);
+		Vertex CurrentCell = maze[0][0];
+		int VisitedCells = 1;
+		//CurrentCell.visited();
+		while (VisitedCells < TotalCells)
+		{
+			
+		}
+		
+	}
+	
+	public int getAdjUnvisitedVertex(int v) {
+		for (int j = 0; j < nVerts; j++)
+			if (adjMat[v][j] == 1 && vertexList[j].wasVisited == false)
+				return j;
+		return -1;
+	}
+}
+
+
+
+//package agarwalNguyen.cs146.project3;
+//
+//
+//public class Graph {
+//	private final int MAX_VERTS = 20;
+//	private Vertex vertexList[]; // list of vertices
+//	private int adjMat[][]; // adjacency matrix
+//	private int nVerts; // current number of vertices
+//	private Queue theQueue;
+//	private StackX theStack;
+//	private Object[][] maze;
+//
+//
+//	public Graph() // constructor
+//	{
+//		vertexList = new Vertex[MAX_VERTS]; // adjacency matrix
+//		adjMat = new int[MAX_VERTS][MAX_VERTS];
+//		nVerts = 0;
+//		for (int j = 0; j < MAX_VERTS; j++) // set adjacency
+//			for (int k = 0; k < MAX_VERTS; k++) // matrix to 0
+//				adjMat[j][k] = 0;
+//		theQueue = new Queue(); // initialize queue
+//		theStack = new StackX(); // initialize stack
+//	}
+//
+//
+//	public void makeGrid(int size) {
+//		int rows = (2 * size) + 1;
+//		int col = (2 * size) + 1;
+//		Vertex v = new Vertex(' ');
+//		maze = new Object[rows][col];
+//		for (int i = 0; i < rows; i = i + 2) {
+//			for (int j = 1; j < col; j = j + 2) {
+//				maze[i][j] = '-';
+//			}
+//		}
+//		for (int i = 1; i < rows; i = i + 2) {
+//			for (int j = 0; j < col; j = j + 2) {
+//				maze[i][j] = '|';
+//			}
+//		}
+//		for (int i = 0; i < rows; i = i + 2) {
+//			for (int j = 0; j < col; j = j + 2) {
+//				maze[i][j] = '+';
+//			}
+//		}
+//		for (int i = 1; i < rows; i = i + 2)
+//		{
+//			for (int j = 1; j < col; j = j + 2)
+//			{
+//				maze[i][j] = v.toChar();
+//			}
+//		}
+//		maze[0][1] = ' '; // making the opening
+//		maze[2 * size][(2 * size) - 1] = ' '; // making the end
+//		printMaze();
+//	}
+//
+//
+//	public void makeMaze() 
+//	{
+//		// to do
+//		
+//	}
+//
+//
+//	public void printMaze() {
+//		for (int x = 0; x < maze.length; x++) {
+//			for (int y = 0; y < maze.length; y++) {
+//				System.out.print(maze[x][y]);
+//			}
+//			System.out.println();
+//		}
+//	}
+//
+//
+//	public void addVertex(char lab) {
+//		vertexList[nVerts++] = new Vertex(lab);
+//	}
+//
+//
+//	public void addEdge(int start, int end) {
+//		adjMat[start][end] = 1;
+//		adjMat[end][start] = 1;
+//	}
+//
+//
+//	public void displayVertex(int v) {
+//		System.out.print(vertexList[v].label);
+//	}
+//
+//
+//	public void bfs() // breadth-first search
+//	{ // begin at vertex 0
+//		vertexList[0].wasVisited = true; // mark it
+//		displayVertex(0); // display it
+//		theQueue.insert(0); // insert at tail
+//		int v2;
+//		while (!theQueue.isEmpty()) // until queue empty,
+//		{
+//			int v1 = theQueue.remove(); // remove vertex at head
+//			// until it has no unvisited neighbors
+//			while ((v2 = getAdjUnvisitedVertex(v1)) != -1) { // get one,
+//				vertexList[v2].wasVisited = true; // mark it
+//				displayVertex(v2); // display it
+//				theQueue.insert(v2); // insert it
+//			} // end while
+//		} // end while(queue not empty)
+//			// queue is empty, so we’re done
+//		for (int j = 0; j < nVerts; j++) // reset flags
+//			vertexList[j].wasVisited = false;
+//	} // end bfs()
+//		// returns an unvisited vertex adj to v
+//
+//
+//	public void dfs() // depth-first search
+//	{ // begin at vertex 0
+//		vertexList[0].wasVisited = true; // mark it
+//		displayVertex(0); // display it
+//		theStack.push(0); // push it
+//		while (!theStack.isEmpty()) // until stack empty,
+//		{
+//			// get an unvisited vertex adjacent to stack top
+//			int v = getAdjUnvisitedVertex(theStack.peek());
+//			if (v == -1) // if no such vertex,
+//				theStack.pop();
+//			else // if it exists,
+//			{
+//				vertexList[v].wasVisited = true; // mark it
+//				displayVertex(v); // display it
+//				theStack.push(v); // push it
+//			}
+//		} // end while
+//			// stack is empty, so we’re done
+//		for (int j = 0; j < nVerts; j++) // reset flags
+//			vertexList[j].wasVisited = false;
+//	}
+//
+//
+//	public int getAdjUnvisitedVertex(int v) {
+//		for (int j = 0; j < nVerts; j++)
+//			if (adjMat[v][j] == 1 && vertexList[j].wasVisited == false)
+//				return j;
+//		return -1;
+//	}
+//}
+//
+//
+//
+//
